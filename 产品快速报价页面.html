@@ -1,0 +1,2431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刀具加工报价系统</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+            background-color: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #409EFF 0%, #1d8ce0 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .app-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1000px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: #fafafa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ebeef5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-title .icon {
+            font-size: 18px;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #606266;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 3px solid #409EFF;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 13px;
+            color: #606266;
+            margin-bottom: 6px;
+        }
+
+        .form-label .required {
+            color: #f56c6c;
+            margin-right: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #409EFF;
+        }
+
+        .form-select {
+            width: 100%;
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #409EFF;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group .form-input {
+            border-radius: 4px 0 0 4px;
+        }
+
+        .input-suffix {
+            height: 36px;
+            padding: 0 12px;
+            background: #f5f7fa;
+            border: 1px solid #dcdfe6;
+            border-left: none;
+            border-radius: 0 4px 4px 0;
+            font-size: 13px;
+            color: #909399;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-calculate {
+            width: 100%;
+            height: 44px;
+            background: linear-gradient(135deg, #409EFF 0%, #1d8ce0 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-calculate:hover {
+            background: linear-gradient(135deg, #66b1ff 0%, #409EFF 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+        }
+
+        .btn-calculate:disabled {
+            background: #c0c4cc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Quotation Result Styles */
+        .quotation-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #909399;
+        }
+
+        .quotation-empty .icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .quotation-result {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scheme-info {
+            background: linear-gradient(135deg, #ecf5ff 0%, #f0f9eb 100%);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .scheme-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 5px;
+        }
+
+        .scheme-desc {
+            font-size: 13px;
+            color: #606266;
+        }
+
+        .cost-breakdown {
+            margin-bottom: 20px;
+        }
+
+        .cost-category {
+            margin-bottom: 15px;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #fafafa;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .category-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #303133;
+        }
+
+        .category-total {
+            font-size: 14px;
+            font-weight: 600;
+            color: #409EFF;
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px 8px 30px;
+            font-size: 13px;
+        }
+
+        .cost-item:hover {
+            background: #f9fafc;
+        }
+
+        .cost-name {
+            color: #606266;
+        }
+
+        .cost-formula {
+            color: #909399;
+            font-size: 12px;
+        }
+
+        .cost-value {
+            font-weight: 500;
+            color: #303133;
+        }
+
+        .total-section {
+            background: linear-gradient(135deg, #409EFF 0%, #1d8ce0 100%);
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .total-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .total-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .total-value {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .final-price {
+            border-top: 1px solid rgba(255,255,255,0.3);
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+
+        .final-price .total-label {
+            font-size: 16px;
+            opacity: 1;
+        }
+
+        .final-price .total-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-action {
+            flex: 1;
+            height: 40px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-save {
+            background: #67c23a;
+            color: white;
+            border: none;
+        }
+
+        .btn-save:hover {
+            background: #85ce61;
+        }
+
+        .btn-export {
+            background: white;
+            color: #409EFF;
+            border: 1px solid #409EFF;
+        }
+
+        .btn-export:hover {
+            background: #ecf5ff;
+        }
+
+        .btn-reset {
+            background: white;
+            color: #909399;
+            border: 1px solid #dcdfe6;
+        }
+
+        .btn-reset:hover {
+            color: #606266;
+            border-color: #c0c4cc;
+        }
+
+        /* Scheme Selector */
+        .scheme-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .scheme-option {
+            padding: 8px 16px;
+            border: 2px solid #dcdfe6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .scheme-option:hover {
+            border-color: #c6e2ff;
+            background: #ecf5ff;
+        }
+
+        .scheme-option.active {
+            border-color: #409EFF;
+            background: #ecf5ff;
+        }
+
+        .scheme-option-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #303133;
+        }
+
+        .scheme-option-desc {
+            font-size: 12px;
+            color: #909399;
+        }
+
+        /* Tooltip */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: #909399;
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            cursor: help;
+            margin-left: 4px;
+        }
+
+        /* Progress indicator */
+        .calculation-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #409EFF;
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #c6e2ff;
+            border-top-color: #409EFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* History Panel */
+        .history-item {
+            padding: 12px 15px;
+            border: 1px solid #ebeef5;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            border-color: #c6e2ff;
+            background: #ecf5ff;
+        }
+
+        .history-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .history-product {
+            font-size: 14px;
+            font-weight: 500;
+            color: #303133;
+        }
+
+        .history-price {
+            font-size: 14px;
+            font-weight: 600;
+            color: #409EFF;
+        }
+
+        .history-meta {
+            font-size: 12px;
+            color: #909399;
+        }
+
+        /* Standard Tool Reference Info Styles */
+        .standard-tool-info {
+            background: linear-gradient(135deg, #f0f9eb 0%, #e8f5e9 100%);
+            border: 1px solid #c2e7b0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .standard-tool-info.no-match {
+            background: linear-gradient(135deg, #fef0f0 0%, #fde2e2 100%);
+            border-color: #f5c6cb;
+        }
+
+        .standard-tool-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .standard-tool-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #67c23a;
+        }
+
+        .standard-tool-info.no-match .standard-tool-title {
+            color: #f56c6c;
+        }
+
+        .standard-tool-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #67c23a;
+            color: white;
+            font-size: 11px;
+            border-radius: 10px;
+        }
+
+        .standard-tool-info.no-match .standard-tool-badge {
+            background: #f56c6c;
+        }
+
+        .standard-tool-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .standard-tool-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .standard-tool-label {
+            font-size: 12px;
+            color: #909399;
+            margin-bottom: 4px;
+        }
+
+        .standard-tool-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .standard-tool-value.time {
+            color: #e6a23c;
+        }
+
+        .standard-tool-value.cost {
+            color: #409EFF;
+        }
+
+        .standard-tool-desc {
+            grid-column: span 2;
+            padding-top: 10px;
+            border-top: 1px dashed #c2e7b0;
+            margin-top: 5px;
+        }
+
+        .standard-tool-info.no-match .standard-tool-desc {
+            border-top-color: #f5c6cb;
+        }
+
+        .standard-tool-desc-text {
+            font-size: 13px;
+            color: #606266;
+        }
+
+        .readonly-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            background: #909399;
+            color: white;
+            font-size: 10px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        /* Editable rate input in total section */
+        .editable-rate-input {
+            width: 60px;
+            height: 26px;
+            padding: 0 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 4px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-align: center;
+            margin: 0 4px;
+        }
+
+        .editable-rate-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .editable-rate-label {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Multiple standard tools styles */
+        .standard-tools-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .standard-tool-card {
+            background: white;
+            border: 1px solid #e4e7ed;
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .standard-tool-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .standard-tool-card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .standard-tool-card-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #67c23a;
+            color: white;
+            font-size: 10px;
+            border-radius: 10px;
+        }
+
+        .standard-tool-card-content {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 6px;
+        }
+
+        .standard-tool-card-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .standard-tool-card-label {
+            font-size: 11px;
+            color: #909399;
+        }
+
+        .standard-tool-card-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .standard-tool-card-value.time {
+            color: #e6a23c;
+        }
+
+        .standard-tool-card-value.cost {
+            color: #409EFF;
+        }
+
+        .standard-tool-card-desc {
+            font-size: 11px;
+            color: #606266;
+        }
+
+        .expand-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            width: 100%;
+            padding: 8px;
+            background: transparent;
+            border: 1px dashed #c2e7b0;
+            border-radius: 4px;
+            color: #67c23a;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .expand-btn:hover {
+            background: #f0f9eb;
+            border-color: #67c23a;
+        }
+
+        /* Material Code Generation Styles */
+        .material-code-section {
+            background: linear-gradient(135deg, #ecf5ff 0%, #d9ecff 100%);
+            border: 1px solid #b3d8ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .material-code-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .material-code-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #409EFF;
+        }
+
+        .material-code-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #409EFF;
+            color: white;
+            font-size: 11px;
+            border-radius: 10px;
+        }
+
+        .code-display {
+            display: grid;
+            gap: 10px;
+        }
+
+        .code-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+        }
+
+        .code-label {
+            font-size: 13px;
+            color: #606266;
+            min-width: 80px;
+        }
+
+        .code-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #303133;
+            flex: 1;
+            font-family: 'Courier New', monospace;
+        }
+
+        .copy-btn {
+            padding: 4px 10px;
+            background: #ecf5ff;
+            color: #409EFF;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background: #d9ecff;
+        }
+
+        /* Delivery Prediction Styles */
+        .delivery-prediction {
+            background: linear-gradient(135deg, #fdf6ec 0%, #faecd8 100%);
+            border: 1px solid #f5dab1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .delivery-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .delivery-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e6a23c;
+        }
+
+        .delivery-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #e6a23c;
+            color: white;
+            font-size: 11px;
+            border-radius: 10px;
+        }
+
+        .prediction-result {
+            display: grid;
+            gap: 10px;
+        }
+
+        .prediction-main {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .prediction-item {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .prediction-label {
+            font-size: 12px;
+            color: #909399;
+            margin-bottom: 5px;
+        }
+
+        .prediction-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .prediction-value.highlight {
+            color: #e6a23c;
+        }
+
+        .prediction-breakdown {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .breakdown-title {
+            font-size: 12px;
+            color: #909399;
+            margin-bottom: 8px;
+        }
+
+        .breakdown-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .breakdown-item {
+            font-size: 12px;
+            color: #606266;
+            background: #f5f7fa;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        /* Quote Comparison Styles */
+        .quote-comparison {
+            background: linear-gradient(135deg, #f0f9eb 0%, #e8f5e9 100%);
+            border: 1px solid #c2e7b0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .comparison-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #67c23a;
+        }
+
+        .comparison-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #67c23a;
+            color: white;
+            font-size: 11px;
+            border-radius: 10px;
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 100px 1fr 100px 80px;
+            gap: 10px;
+            padding: 10px 15px;
+            align-items: center;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .comparison-row:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-row.header {
+            background: #fafafa;
+            font-weight: 600;
+            color: #303133;
+            font-size: 13px;
+        }
+
+        .comparison-row span {
+            font-size: 13px;
+            color: #606266;
+        }
+
+        .comparison-row .price {
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .comparison-row .diff {
+            text-align: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .diff.higher {
+            background: #fef0f0;
+            color: #f56c6c;
+        }
+
+        .diff.lower {
+            background: #f0f9eb;
+            color: #67c23a;
+        }
+
+        .diff.baseline {
+            background: #f5f7fa;
+            color: #909399;
+        }
+
+        .comparison-warning {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fdf6ec;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #e6a23c;
+        }
+
+        @media (max-width: 600px) {
+            .prediction-main {
+                grid-template-columns: 1fr;
+            }
+            .comparison-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="app-container">
+        <div class="main-content">
+            <!-- Left Panel: Product Information Input -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="icon">&#128221;</span>
+                        产品信息录入
+                    </div>
+                    <span style="font-size: 12px; color: #909399;">* 为必填项</span>
+                </div>
+                <div class="panel-body">
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <div class="section-title">基本信息</div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label class="form-label"><span class="required">*</span>产品名称</label>
+                                <input type="text" class="form-input" v-model="product.name" placeholder="请输入产品名称">
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label"><span class="required">*</span>产品型号</label>
+                                <input type="text" class="form-input" v-model="product.model" placeholder="请输入产品型号">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label class="form-label"><span class="required">*</span>刀具类型</label>
+                                <select class="form-select" v-model="product.toolType">
+                                    <option value="">请选择刀具类型</option>
+                                    <option v-for="type in toolTypes" :key="type.value" :value="type.value">
+                                        {{ type.label }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label"><span class="required">*</span>材料类型</label>
+                                <select class="form-select" v-model="product.materialType">
+                                    <option value="">请选择材料类型</option>
+                                    <option v-for="mat in materialTypes" :key="mat.value" :value="mat.value">
+                                        {{ mat.label }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Specifications -->
+                    <div class="form-section">
+                        <div class="section-title">规格参数</div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label class="form-label"><span class="required">*</span>刀具直径</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-input" v-model.number="product.diameter" placeholder="0" min="0" step="0.1">
+                                    <span class="input-suffix">mm</span>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label"><span class="required">*</span>刀具长度</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-input" v-model.number="product.length" placeholder="0" min="0" step="0.1">
+                                    <span class="input-suffix">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label class="form-label">刃数</label>
+                                <select class="form-select" v-model="product.flutes">
+                                    <option value="">请选择刃数</option>
+                                    <option value="2">2刃</option>
+                                    <option value="3">3刃</option>
+                                    <option value="4">4刃</option>
+                                    <option value="6">6刃</option>
+                                    <option value="8">8刃</option>
+                                </select>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label">螺旋角</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-input" v-model.number="product.helixAngle" placeholder="35" min="0" max="90">
+                                    <span class="input-suffix">度</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label class="form-label">刃径</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-input" v-model.number="product.cuttingDiameter" placeholder="0" min="0" step="0.1">
+                                    <span class="input-suffix">mm</span>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label">刃长</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-input" v-model.number="product.cuttingLength" placeholder="0" min="0" step="0.1">
+                                    <span class="input-suffix">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label class="form-label">R角</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-input" v-model.number="product.rAngle" placeholder="0" min="0" step="0.1">
+                                    <span class="input-suffix">mm</span>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label">公差等级</label>
+                                <select class="form-select" v-model="product.toleranceGrade">
+                                    <option value="">请选择公差等级</option>
+                                    <option value="IT5">IT5 (高精度)</option>
+                                    <option value="IT6">IT6 (精密级)</option>
+                                    <option value="IT7">IT7 (标准级)</option>
+                                    <option value="IT8">IT8 (普通级)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Standard Tool Reference Info (Read-only) -->
+                    <div class="form-section" v-if="product.toolType && product.materialType && product.diameter > 0">
+                        <div class="section-title">
+                            标准刀具参考信息
+                            <span class="readonly-badge">&#128274; 仅展示</span>
+                        </div>
+                        <div :class="['standard-tool-info', { 'no-match': matchedStandardTools.length === 0 }]">
+                            <div class="standard-tool-header">
+                                <span class="standard-tool-title">
+                                    {{ matchedStandardTools.length > 0 ? '&#9989; 已匹配 ' + matchedStandardTools.length + ' 条标准刀具' : '&#10060; 未找到匹配的标准刀具' }}
+                                </span>
+                                <span class="standard-tool-badge">
+                                    {{ matchedStandardTools.length > 0 ? '系统参考值' : '无参考数据' }}
+                                </span>
+                            </div>
+                            <!-- Multiple standard tools display -->
+                            <div class="standard-tools-list" v-if="matchedStandardTools.length > 0">
+                                <div class="standard-tool-card" v-for="(tool, index) in displayedStandardTools" :key="index">
+                                    <div class="standard-tool-card-header">
+                                        <span class="standard-tool-card-title">{{ tool.description }}</span>
+                                        <span class="standard-tool-card-badge">参考 #{{ index + 1 }}</span>
+                                    </div>
+                                    <div class="standard-tool-card-content">
+                                        <div class="standard-tool-card-item">
+                                            <span class="standard-tool-card-label">标准加工时间</span>
+                                            <span class="standard-tool-card-value time">{{ tool.processingTime }} 分钟/件</span>
+                                        </div>
+                                        <div class="standard-tool-card-item">
+                                            <span class="standard-tool-card-label">标准加工费用</span>
+                                            <span class="standard-tool-card-value cost">¥{{ tool.processingCost.toFixed(2) }}/件</span>
+                                        </div>
+                                    </div>
+                                    <div class="standard-tool-card-desc">
+                                        适用直径范围: Φ{{ tool.diameterMin }}-{{ tool.diameterMax }}mm
+                                    </div>
+                                </div>
+                                <!-- Expand/collapse button -->
+                                <button class="expand-btn" v-if="matchedStandardTools.length > 2" @click="showAllStandardTools = !showAllStandardTools">
+                                    <span v-if="!showAllStandardTools">&#128317; 展开查看全部 {{ matchedStandardTools.length }} 条参考数据</span>
+                                    <span v-else>&#128316; 收起参考数据</span>
+                                </button>
+                            </div>
+                            <div class="standard-tool-content" v-else>
+                                <div class="standard-tool-desc" style="grid-column: span 2; border: none; padding-top: 0; margin-top: 0;">
+                                    <span class="standard-tool-desc-text">
+                                        当前选择的刀具类型({{ getToolTypeLabel(product.toolType) }})、材料类型({{ getMaterialInfo(product.materialType).label }})和直径(Φ{{ product.diameter }}mm)组合在系统中暂无标准参考数据，报价将根据公式计算得出。
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Processing Options -->
+                    <div class="form-section">
+                        <div class="section-title">加工选项</div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label class="form-label">段差类型</label>
+                                <select class="form-select" v-model="product.stepType">
+                                    <option value="default">默认</option>
+                                    <option value="bigHead">大头</option>
+                                    <option value="topGrinding">顶磨</option>
+                                </select>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label">涂层参数</label>
+                                <select class="form-select" v-model="product.surfaceTreatment">
+                                    <option value="">无</option>
+                                    <option value="TiN">TiN镀层 (金黄色)</option>
+                                    <option value="TiAlN">TiAlN镀层 (紫黑色)</option>
+                                    <option value="AlCrN">AlCrN镀层 (灰黑色)</option>
+                                    <option value="DLC">DLC涂层 (类金刚石)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label class="form-label">钝化处理</label>
+                                <select class="form-select" v-model="product.passivation">
+                                    <option value="">无</option>
+                                    <option value="standard">标准钝化</option>
+                                    <option value="precision">精密钝化</option>
+                                    <option value="mirror">镜面钝化</option>
+                                </select>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label"><span class="required">*</span>订单数量</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-input" v-model.number="product.quantity" placeholder="1" min="1">
+                                    <span class="input-suffix">件</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label class="form-label">交货周期</label>
+                                <select class="form-select" v-model="product.deliveryTime">
+                                    <option value="standard">标准 (7-10天)</option>
+                                    <option value="fast">加急 (3-5天)</option>
+                                    <option value="urgent">特急 (1-2天)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Packaging -->
+                    <div class="form-section">
+                        <div class="section-title">包装要求</div>
+                        <div class="form-row single">
+                            <div class="form-item">
+                                <label class="form-label">包装方式</label>
+                                <select class="form-select" v-model="product.packaging">
+                                    <option value="standard">标准包装</option>
+                                    <option value="individual">独立包装</option>
+                                    <option value="gift">精美礼盒包装</option>
+                                    <option value="export">出口包装</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculate Button -->
+                    <button class="btn-calculate" @click="calculateQuotation" :disabled="!isFormValid || isCalculating">
+                        <span v-if="isCalculating" class="calculation-progress">
+                            <span class="spinner"></span>
+                            正在计算...
+                        </span>
+                        <span v-else>&#128202; 计算报价</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel: Quotation Result -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="icon">&#128176;</span>
+                        报价结果
+                    </div>
+                    <span v-if="quotation" style="font-size: 12px; color: #909399;">
+                        报价单号: {{ quotation.quotationNo }}
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <!-- Empty State -->
+                    <div v-if="!quotation" class="quotation-empty">
+                        <div class="icon">&#128203;</div>
+                        <div>请填写产品信息后计算报价</div>
+                    </div>
+
+                    <!-- Quotation Result -->
+                    <div v-else class="quotation-result">
+                        <!-- Scheme Info -->
+                        <div class="scheme-info">
+                            <div class="scheme-name">{{ quotation.scheme.name }}</div>
+                            <div class="scheme-desc">{{ quotation.scheme.description }}</div>
+                        </div>
+
+                        <!-- Material Code Generation -->
+                        <div class="material-code-section">
+                            <div class="material-code-header">
+                                <span class="material-code-title">&#128196; 自动生成物料信息</span>
+                                <span class="material-code-badge">自动生成</span>
+                            </div>
+                            <div class="code-display">
+                                <div class="code-item">
+                                    <span class="code-label">物料编码</span>
+                                    <span class="code-value">{{ generatedMaterialCode }}</span>
+                                    <button class="copy-btn" @click="copyToClipboard(generatedMaterialCode)">复制</button>
+                                </div>
+                                <div class="code-item">
+                                    <span class="code-label">规格型号</span>
+                                    <span class="code-value">{{ generatedSpecification }}</span>
+                                    <button class="copy-btn" @click="copyToClipboard(generatedSpecification)">复制</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Prediction -->
+                        <div class="delivery-prediction">
+                            <div class="delivery-header">
+                                <span class="delivery-title">&#128197; 交期智能预测</span>
+                                <span class="delivery-badge">智能预测</span>
+                            </div>
+                            <div class="prediction-result">
+                                <div class="prediction-main">
+                                    <div class="prediction-item">
+                                        <div class="prediction-label">预计开始加工</div>
+                                        <div class="prediction-value">{{ deliveryPrediction.startDate }}</div>
+                                    </div>
+                                    <div class="prediction-item">
+                                        <div class="prediction-label">预计完成日期</div>
+                                        <div class="prediction-value">{{ deliveryPrediction.endDate }}</div>
+                                    </div>
+                                    <div class="prediction-item">
+                                        <div class="prediction-label">总加工天数</div>
+                                        <div class="prediction-value highlight">{{ deliveryPrediction.totalDays }} 天</div>
+                                    </div>
+                                </div>
+                                <div class="prediction-breakdown">
+                                    <div class="breakdown-title">工期分解</div>
+                                    <div class="breakdown-items">
+                                        <span class="breakdown-item" v-for="(item, key) in deliveryPrediction.breakdown" :key="key">
+                                            {{ item.name }}: {{ item.days }}天
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Standard vs Custom Quote Comparison -->
+                        <div class="quote-comparison" v-if="quotation">
+                            <div class="comparison-header">
+                                <span class="comparison-title">&#9878; 标非标报价对比</span>
+                                <span class="comparison-badge">价格分析</span>
+                            </div>
+                            <div class="comparison-table">
+                                <div class="comparison-row header">
+                                    <span>报价方式</span>
+                                    <span>计算公式</span>
+                                    <span>单价</span>
+                                    <span>差异</span>
+                                </div>
+                                <div class="comparison-row">
+                                    <span>标品报价</span>
+                                    <span style="font-size: 12px;">(材料 + 固定成本) × 系数</span>
+                                    <span class="price">{{ formatCurrency(standardQuotePrice) }}</span>
+                                    <span class="diff baseline">基准</span>
+                                </div>
+                                <div class="comparison-row">
+                                    <span>非标报价</span>
+                                    <span style="font-size: 12px;">成本累计 × 利润率</span>
+                                    <span class="price">{{ formatCurrency(calculatedUnitPrice) }}</span>
+                                    <span :class="['diff', priceComparisonClass]">
+                                        {{ priceComparisonText }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="comparison-warning" v-if="Math.abs(priceComparisonPercent) > 10">
+                                &#9888; 两种报价方式差异超过10%，建议核实后选择合适的报价方式
+                            </div>
+                        </div>
+
+                        <!-- Cost Breakdown -->
+                        <div class="cost-breakdown">
+                            <!-- Material Cost -->
+                            <div class="cost-category">
+                                <div class="category-header">
+                                    <span class="category-name">&#127981; 材料成本</span>
+                                    <span class="category-total">{{ formatCurrency(quotation.costs.material.total) }}</span>
+                                </div>
+                                <div class="cost-item" v-for="item in quotation.costs.material.items" :key="item.name">
+                                    <span>
+                                        <span class="cost-name">{{ item.name }}</span>
+                                        <span class="cost-formula" v-if="item.formula">{{ item.formula }}</span>
+                                    </span>
+                                    <span class="cost-value">{{ formatCurrency(item.value) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Processing Cost -->
+                            <div class="cost-category">
+                                <div class="category-header">
+                                    <span class="category-name">&#128295; 加工成本</span>
+                                    <span class="category-total">{{ formatCurrency(quotation.costs.processing.total) }}</span>
+                                </div>
+                                <div class="cost-item" v-for="item in quotation.costs.processing.items" :key="item.name">
+                                    <span>
+                                        <span class="cost-name">{{ item.name }}</span>
+                                        <span class="cost-formula" v-if="item.formula">{{ item.formula }}</span>
+                                    </span>
+                                    <span class="cost-value">{{ formatCurrency(item.value) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Surface Treatment -->
+                            <div class="cost-category" v-if="quotation.costs.surface.total > 0">
+                                <div class="category-header">
+                                    <span class="category-name">&#10024; 表面处理</span>
+                                    <span class="category-total">{{ formatCurrency(quotation.costs.surface.total) }}</span>
+                                </div>
+                                <div class="cost-item" v-for="item in quotation.costs.surface.items" :key="item.name">
+                                    <span>
+                                        <span class="cost-name">{{ item.name }}</span>
+                                        <span class="cost-formula" v-if="item.formula">{{ item.formula }}</span>
+                                    </span>
+                                    <span class="cost-value">{{ formatCurrency(item.value) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Other Costs -->
+                            <div class="cost-category">
+                                <div class="category-header">
+                                    <span class="category-name">&#128230; 其他费用</span>
+                                    <span class="category-total">{{ formatCurrency(quotation.costs.other.total) }}</span>
+                                </div>
+                                <div class="cost-item" v-for="item in quotation.costs.other.items" :key="item.name">
+                                    <span>
+                                        <span class="cost-name">{{ item.name }}</span>
+                                        <span class="cost-formula" v-if="item.formula">{{ item.formula }}</span>
+                                    </span>
+                                    <span class="cost-value">{{ formatCurrency(item.value) }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Section -->
+                        <div class="total-section">
+                            <div class="total-row">
+                                <span class="total-label">成本小计</span>
+                                <span class="total-value">{{ formatCurrency(quotation.subtotal) }}</span>
+                            </div>
+                            <div class="total-row">
+                                <span class="total-label editable-rate-label">
+                                    利润 (<input type="number" class="editable-rate-input" v-model.number="editableProfitRate" @change="recalculateFinalPrice" min="0" max="100" step="1">%)
+                                </span>
+                                <span class="total-value">{{ formatCurrency(calculatedProfit) }}</span>
+                            </div>
+                            <div class="total-row">
+                                <span class="total-label editable-rate-label">
+                                    折扣率 (<input type="number" class="editable-rate-input" v-model.number="editableDiscountRate" @change="recalculateFinalPrice" min="0" max="100" step="1">%)
+                                </span>
+                                <span class="total-value">-{{ formatCurrency(calculatedDiscount) }}</span>
+                            </div>
+                            <div class="total-row" v-if="quotation.urgentFee > 0">
+                                <span class="total-label">加急费用</span>
+                                <span class="total-value">+{{ formatCurrency(quotation.urgentFee) }}</span>
+                            </div>
+                            <div class="total-row final-price">
+                                <span class="total-label">单价</span>
+                                <span class="total-value">{{ formatCurrency(calculatedUnitPrice) }}</span>
+                            </div>
+                            <div class="total-row final-price">
+                                <span class="total-label">总价 ({{ product.quantity }}件)</span>
+                                <span class="total-value">{{ formatCurrency(calculatedTotalPrice) }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn-action btn-save" @click="saveQuotation">&#128190; 保存报价</button>
+                            <button class="btn-action btn-export" @click="exportQuotation">&#128196; 导出PDF</button>
+                            <button class="btn-action btn-reset" @click="resetForm">&#128260; 重新报价</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Panel -->
+        <div class="panel" style="margin-top: 20px;" v-if="history.length > 0">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="icon">&#128197;</span>
+                    最近报价记录
+                </div>
+                <span style="font-size: 12px; color: #909399;">共 {{ history.length }} 条</span>
+            </div>
+            <div class="panel-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                    <div class="history-item" v-for="item in history" :key="item.id" @click="loadHistory(item)">
+                        <div class="history-header">
+                            <span class="history-product">{{ item.productName }} - {{ item.productModel }}</span>
+                            <span class="history-price">{{ formatCurrency(item.totalPrice) }}</span>
+                        </div>
+                        <div class="history-meta">
+                            {{ item.toolType }} | {{ item.materialType }} | {{ item.quantity }}件 | {{ item.date }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue and Element UI -->
+    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    // Product Information
+                    product: {
+                        name: '',
+                        model: '',
+                        toolType: '',
+                        materialType: '',
+                        diameter: null,
+                        length: null,
+                        flutes: '',
+                        helixAngle: 35,
+                        cuttingDiameter: null,
+                        cuttingLength: null,
+                        rAngle: null,
+                        toleranceGrade: 'IT7',
+                        stepType: 'default',
+                        surfaceTreatment: '',
+                        passivation: '',
+                        quantity: 1,
+                        deliveryTime: 'standard',
+                        packaging: 'standard'
+                    },
+
+                    // Tool Types
+                    toolTypes: [
+                        { value: 'endmill', label: '立铣刀' },
+                        { value: 'ballnose', label: '球头铣刀' },
+                        { value: 'chamfer', label: '倒角刀' },
+                        { value: 'drill', label: '钻头' },
+                        { value: 'reamer', label: '铰刀' },
+                        { value: 'tap', label: '丝锥' },
+                        { value: 'slotmill', label: '槽铣刀' },
+                        { value: 'facemill', label: '面铣刀' }
+                    ],
+
+                    // Material Types
+                    materialTypes: [
+                        { value: 'hss', label: '高速钢 (HSS)', pricePerKg: 80 },
+                        { value: 'hss-co', label: '含钴高速钢 (HSS-Co)', pricePerKg: 120 },
+                        { value: 'carbide', label: '硬质合金', pricePerKg: 450 },
+                        { value: 'carbide-ultra', label: '超细晶粒硬质合金', pricePerKg: 680 },
+                        { value: 'cermet', label: '金属陶瓷', pricePerKg: 520 },
+                        { value: 'pcd', label: 'PCD金刚石', pricePerKg: 2800 },
+                        { value: 'cbn', label: 'CBN立方氮化硼', pricePerKg: 3200 }
+                    ],
+
+                    // Quotation Schemes
+                    schemes: [
+                        {
+                            id: 'standard',
+                            name: '标准报价方案',
+                            description: '适用于常规刀具加工，采用标准工艺流程',
+                            profitRate: 25,
+                            applicable: (product) => true
+                        },
+                        {
+                            id: 'precision',
+                            name: '精密加工方案',
+                            description: '适用于高精度要求产品，采用精密加工工艺',
+                            profitRate: 35,
+                            applicable: (product) => ['IT5', 'IT6'].includes(product.toleranceGrade)
+                        },
+                        {
+                            id: 'batch',
+                            name: '批量生产方案',
+                            description: '适用于大批量订单，享受批量优惠价格',
+                            profitRate: 20,
+                            applicable: (product) => product.quantity >= 100
+                        },
+                        {
+                            id: 'special',
+                            name: '特殊材料方案',
+                            description: '适用于PCD/CBN等特殊材料加工',
+                            profitRate: 40,
+                            applicable: (product) => ['pcd', 'cbn'].includes(product.materialType)
+                        }
+                    ],
+
+                    // Coating Prices
+                    coatingPrices: {
+                        'TiN': { base: 15, perMm: 0.5 },
+                        'TiAlN': { base: 25, perMm: 0.8 },
+                        'AlCrN': { base: 30, perMm: 1.0 },
+                        'DLC': { base: 50, perMm: 1.5 }
+                    },
+
+                    // Passivation Prices
+                    passivationPrices: {
+                        'standard': 10,
+                        'precision': 25,
+                        'mirror': 50
+                    },
+
+                    // Packaging Prices
+                    packagingPrices: {
+                        'standard': 2,
+                        'individual': 5,
+                        'gift': 15,
+                        'export': 20
+                    },
+
+                    // Delivery Multipliers
+                    deliveryMultipliers: {
+                        'standard': 0,
+                        'fast': 0.15,
+                        'urgent': 0.30
+                    },
+
+                    // Standard Tool Database - processing time and cost reference
+                    standardTools: [
+                        // 立铣刀 (End Mills)
+                        { toolType: 'endmill', materialType: 'hss', diameterMin: 1, diameterMax: 6, processingTime: 15, processingCost: 45, description: '高速钢立铣刀 Φ1-6' },
+                        { toolType: 'endmill', materialType: 'hss', diameterMin: 6, diameterMax: 12, processingTime: 20, processingCost: 60, description: '高速钢立铣刀 Φ6-12' },
+                        { toolType: 'endmill', materialType: 'hss', diameterMin: 12, diameterMax: 25, processingTime: 30, processingCost: 85, description: '高速钢立铣刀 Φ12-25' },
+                        { toolType: 'endmill', materialType: 'hss-co', diameterMin: 1, diameterMax: 6, processingTime: 18, processingCost: 55, description: '含钴高速钢立铣刀 Φ1-6' },
+                        { toolType: 'endmill', materialType: 'hss-co', diameterMin: 6, diameterMax: 12, processingTime: 25, processingCost: 75, description: '含钴高速钢立铣刀 Φ6-12' },
+                        { toolType: 'endmill', materialType: 'hss-co', diameterMin: 12, diameterMax: 25, processingTime: 35, processingCost: 100, description: '含钴高速钢立铣刀 Φ12-25' },
+                        { toolType: 'endmill', materialType: 'carbide', diameterMin: 1, diameterMax: 6, processingTime: 25, processingCost: 120, description: '硬质合金立铣刀 Φ1-6' },
+                        { toolType: 'endmill', materialType: 'carbide', diameterMin: 6, diameterMax: 12, processingTime: 35, processingCost: 180, description: '硬质合金立铣刀 Φ6-12' },
+                        { toolType: 'endmill', materialType: 'carbide', diameterMin: 12, diameterMax: 25, processingTime: 50, processingCost: 260, description: '硬质合金立铣刀 Φ12-25' },
+                        { toolType: 'endmill', materialType: 'carbide-ultra', diameterMin: 1, diameterMax: 6, processingTime: 30, processingCost: 160, description: '超细晶粒硬质合金立铣刀 Φ1-6' },
+                        { toolType: 'endmill', materialType: 'carbide-ultra', diameterMin: 6, diameterMax: 12, processingTime: 45, processingCost: 240, description: '超细晶粒硬质合金立铣刀 Φ6-12' },
+                        { toolType: 'endmill', materialType: 'carbide-ultra', diameterMin: 12, diameterMax: 25, processingTime: 60, processingCost: 350, description: '超细晶粒硬质合金立铣刀 Φ12-25' },
+
+                        // 球头铣刀 (Ball Nose)
+                        { toolType: 'ballnose', materialType: 'hss', diameterMin: 1, diameterMax: 6, processingTime: 20, processingCost: 55, description: '高速钢球头铣刀 Φ1-6' },
+                        { toolType: 'ballnose', materialType: 'hss', diameterMin: 6, diameterMax: 12, processingTime: 28, processingCost: 75, description: '高速钢球头铣刀 Φ6-12' },
+                        { toolType: 'ballnose', materialType: 'hss', diameterMin: 12, diameterMax: 25, processingTime: 40, processingCost: 100, description: '高速钢球头铣刀 Φ12-25' },
+                        { toolType: 'ballnose', materialType: 'carbide', diameterMin: 1, diameterMax: 6, processingTime: 35, processingCost: 150, description: '硬质合金球头铣刀 Φ1-6' },
+                        { toolType: 'ballnose', materialType: 'carbide', diameterMin: 6, diameterMax: 12, processingTime: 50, processingCost: 220, description: '硬质合金球头铣刀 Φ6-12' },
+                        { toolType: 'ballnose', materialType: 'carbide', diameterMin: 12, diameterMax: 25, processingTime: 70, processingCost: 320, description: '硬质合金球头铣刀 Φ12-25' },
+
+                        // 倒角刀 (Chamfer)
+                        { toolType: 'chamfer', materialType: 'hss', diameterMin: 3, diameterMax: 10, processingTime: 10, processingCost: 30, description: '高速钢倒角刀 Φ3-10' },
+                        { toolType: 'chamfer', materialType: 'hss', diameterMin: 10, diameterMax: 25, processingTime: 15, processingCost: 45, description: '高速钢倒角刀 Φ10-25' },
+                        { toolType: 'chamfer', materialType: 'carbide', diameterMin: 3, diameterMax: 10, processingTime: 18, processingCost: 80, description: '硬质合金倒角刀 Φ3-10' },
+                        { toolType: 'chamfer', materialType: 'carbide', diameterMin: 10, diameterMax: 25, processingTime: 25, processingCost: 120, description: '硬质合金倒角刀 Φ10-25' },
+
+                        // 钻头 (Drill)
+                        { toolType: 'drill', materialType: 'hss', diameterMin: 1, diameterMax: 6, processingTime: 12, processingCost: 35, description: '高速钢钻头 Φ1-6' },
+                        { toolType: 'drill', materialType: 'hss', diameterMin: 6, diameterMax: 12, processingTime: 18, processingCost: 50, description: '高速钢钻头 Φ6-12' },
+                        { toolType: 'drill', materialType: 'hss', diameterMin: 12, diameterMax: 25, processingTime: 25, processingCost: 70, description: '高速钢钻头 Φ12-25' },
+                        { toolType: 'drill', materialType: 'carbide', diameterMin: 1, diameterMax: 6, processingTime: 22, processingCost: 100, description: '硬质合金钻头 Φ1-6' },
+                        { toolType: 'drill', materialType: 'carbide', diameterMin: 6, diameterMax: 12, processingTime: 32, processingCost: 150, description: '硬质合金钻头 Φ6-12' },
+                        { toolType: 'drill', materialType: 'carbide', diameterMin: 12, diameterMax: 25, processingTime: 45, processingCost: 220, description: '硬质合金钻头 Φ12-25' },
+
+                        // 铰刀 (Reamer)
+                        { toolType: 'reamer', materialType: 'hss', diameterMin: 3, diameterMax: 10, processingTime: 25, processingCost: 65, description: '高速钢铰刀 Φ3-10' },
+                        { toolType: 'reamer', materialType: 'hss', diameterMin: 10, diameterMax: 25, processingTime: 35, processingCost: 90, description: '高速钢铰刀 Φ10-25' },
+                        { toolType: 'reamer', materialType: 'carbide', diameterMin: 3, diameterMax: 10, processingTime: 40, processingCost: 180, description: '硬质合金铰刀 Φ3-10' },
+                        { toolType: 'reamer', materialType: 'carbide', diameterMin: 10, diameterMax: 25, processingTime: 55, processingCost: 280, description: '硬质合金铰刀 Φ10-25' },
+
+                        // 丝锥 (Tap)
+                        { toolType: 'tap', materialType: 'hss', diameterMin: 2, diameterMax: 8, processingTime: 30, processingCost: 80, description: '高速钢丝锥 M2-M8' },
+                        { toolType: 'tap', materialType: 'hss', diameterMin: 8, diameterMax: 16, processingTime: 40, processingCost: 110, description: '高速钢丝锥 M8-M16' },
+                        { toolType: 'tap', materialType: 'hss', diameterMin: 16, diameterMax: 30, processingTime: 55, processingCost: 150, description: '高速钢丝锥 M16-M30' },
+                        { toolType: 'tap', materialType: 'carbide', diameterMin: 2, diameterMax: 8, processingTime: 45, processingCost: 200, description: '硬质合金丝锥 M2-M8' },
+                        { toolType: 'tap', materialType: 'carbide', diameterMin: 8, diameterMax: 16, processingTime: 60, processingCost: 300, description: '硬质合金丝锥 M8-M16' },
+
+                        // 槽铣刀 (Slot Mill)
+                        { toolType: 'slotmill', materialType: 'hss', diameterMin: 3, diameterMax: 10, processingTime: 18, processingCost: 50, description: '高速钢槽铣刀 Φ3-10' },
+                        { toolType: 'slotmill', materialType: 'hss', diameterMin: 10, diameterMax: 25, processingTime: 28, processingCost: 75, description: '高速钢槽铣刀 Φ10-25' },
+                        { toolType: 'slotmill', materialType: 'carbide', diameterMin: 3, diameterMax: 10, processingTime: 30, processingCost: 140, description: '硬质合金槽铣刀 Φ3-10' },
+                        { toolType: 'slotmill', materialType: 'carbide', diameterMin: 10, diameterMax: 25, processingTime: 45, processingCost: 200, description: '硬质合金槽铣刀 Φ10-25' },
+
+                        // 面铣刀 (Face Mill)
+                        { toolType: 'facemill', materialType: 'carbide', diameterMin: 16, diameterMax: 40, processingTime: 60, processingCost: 350, description: '硬质合金面铣刀 Φ16-40' },
+                        { toolType: 'facemill', materialType: 'carbide', diameterMin: 40, diameterMax: 80, processingTime: 90, processingCost: 550, description: '硬质合金面铣刀 Φ40-80' },
+
+                        // PCD/CBN 特殊材料
+                        { toolType: 'endmill', materialType: 'pcd', diameterMin: 3, diameterMax: 12, processingTime: 120, processingCost: 800, description: 'PCD金刚石立铣刀 Φ3-12' },
+                        { toolType: 'endmill', materialType: 'pcd', diameterMin: 12, diameterMax: 25, processingTime: 180, processingCost: 1200, description: 'PCD金刚石立铣刀 Φ12-25' },
+                        { toolType: 'endmill', materialType: 'cbn', diameterMin: 3, diameterMax: 12, processingTime: 100, processingCost: 750, description: 'CBN立方氮化硼立铣刀 Φ3-12' },
+                        { toolType: 'endmill', materialType: 'cbn', diameterMin: 12, diameterMax: 25, processingTime: 150, processingCost: 1100, description: 'CBN立方氮化硼立铣刀 Φ12-25' },
+                        { toolType: 'drill', materialType: 'pcd', diameterMin: 3, diameterMax: 12, processingTime: 90, processingCost: 650, description: 'PCD金刚石钻头 Φ3-12' },
+                        { toolType: 'drill', materialType: 'cbn', diameterMin: 3, diameterMax: 12, processingTime: 85, processingCost: 600, description: 'CBN立方氮化硼钻头 Φ3-12' },
+
+                        // 金属陶瓷 (Cermet)
+                        { toolType: 'endmill', materialType: 'cermet', diameterMin: 3, diameterMax: 12, processingTime: 55, processingCost: 280, description: '金属陶瓷立铣刀 Φ3-12' },
+                        { toolType: 'endmill', materialType: 'cermet', diameterMin: 12, diameterMax: 25, processingTime: 75, processingCost: 400, description: '金属陶瓷立铣刀 Φ12-25' }
+                    ],
+
+                    // State
+                    isCalculating: false,
+                    quotation: null,
+                    history: [],
+                    matchedStandardTool: null,
+                    matchedStandardTools: [],
+                    showAllStandardTools: false,
+                    editableProfitRate: 25,
+                    editableDiscountRate: 0,
+
+                    // Material code generation mappings
+                    toolTypeCodes: {
+                        'endmill': 'EM',
+                        'ballnose': 'BN',
+                        'chamfer': 'CH',
+                        'drill': 'DR',
+                        'reamer': 'RM',
+                        'tap': 'TP',
+                        'slotmill': 'SM',
+                        'facemill': 'FM'
+                    },
+                    materialCodes: {
+                        'hss': 'HS',
+                        'hss-co': 'HC',
+                        'carbide': 'CA',
+                        'carbide-ultra': 'CU',
+                        'cermet': 'CM',
+                        'pcd': 'PD',
+                        'cbn': 'CB'
+                    },
+
+                    // Standard product pricing config
+                    standardProductConfig: {
+                        fixedCost: 50,       // Fixed cost per item
+                        coefficient: 1.5     // Pricing coefficient
+                    },
+
+                    // Delivery prediction data
+                    deliveryPrediction: {
+                        startDate: '',
+                        endDate: '',
+                        totalDays: 0,
+                        breakdown: []
+                    }
+                };
+            },
+
+            computed: {
+                isFormValid() {
+                    return this.product.name &&
+                           this.product.model &&
+                           this.product.toolType &&
+                           this.product.materialType &&
+                           this.product.diameter > 0 &&
+                           this.product.length > 0 &&
+                           this.product.quantity > 0;
+                },
+                calculatedProfit() {
+                    if (!this.quotation) return 0;
+                    return this.quotation.subtotal * (this.editableProfitRate / 100);
+                },
+                calculatedDiscount() {
+                    if (!this.quotation) return 0;
+                    return (this.quotation.subtotal + this.calculatedProfit) * (this.editableDiscountRate / 100);
+                },
+                calculatedUnitPrice() {
+                    if (!this.quotation) return 0;
+                    return this.quotation.subtotal + this.calculatedProfit - this.calculatedDiscount + this.quotation.urgentFee;
+                },
+                calculatedTotalPrice() {
+                    return this.calculatedUnitPrice * this.product.quantity;
+                },
+                displayedStandardTools() {
+                    // Show 2 items by default, or all if expanded
+                    if (this.showAllStandardTools) {
+                        return this.matchedStandardTools;
+                    }
+                    return this.matchedStandardTools.slice(0, 2);
+                },
+
+                // Generated material code
+                generatedMaterialCode() {
+                    if (!this.product.toolType || !this.product.materialType || !this.product.diameter) {
+                        return '-';
+                    }
+                    const typeCode = this.toolTypeCodes[this.product.toolType] || 'XX';
+                    const matCode = this.materialCodes[this.product.materialType] || 'XX';
+                    const d = this.product.cuttingDiameter || this.product.diameter || 0;
+                    const l = this.product.cuttingLength || this.product.length || 0;
+                    const r = this.product.rAngle || 0;
+
+                    let specCode = `D${d}`;
+                    if (l > 0) specCode += `L${l}`;
+                    if (r > 0) specCode += `R${r}`;
+
+                    return `${typeCode}-${matCode}-${specCode}`;
+                },
+
+                // Generated specification string
+                generatedSpecification() {
+                    if (!this.product.diameter) return '-';
+                    const d = this.product.cuttingDiameter || this.product.diameter;
+                    const l = this.product.cuttingLength || this.product.length || '';
+                    const r = this.product.rAngle || 0;
+
+                    let spec = `Φ${d}`;
+                    if (l) spec += ` × ${l}mm`;
+                    if (r > 0) spec += ` R${r}`;
+
+                    return spec;
+                },
+
+                // Standard product quote price calculation
+                standardQuotePrice() {
+                    if (!this.quotation) return 0;
+                    const materialCost = this.quotation.costs.material.total;
+                    const fixedCost = this.standardProductConfig.fixedCost;
+                    const coefficient = this.standardProductConfig.coefficient;
+                    return (materialCost + fixedCost) * coefficient;
+                },
+
+                // Price comparison percentage
+                priceComparisonPercent() {
+                    if (!this.standardQuotePrice || this.standardQuotePrice === 0) return 0;
+                    return ((this.calculatedUnitPrice - this.standardQuotePrice) / this.standardQuotePrice * 100);
+                },
+
+                // Price comparison display text
+                priceComparisonText() {
+                    const percent = this.priceComparisonPercent;
+                    if (percent > 0) {
+                        return `+${percent.toFixed(1)}%`;
+                    } else if (percent < 0) {
+                        return `${percent.toFixed(1)}%`;
+                    }
+                    return '0%';
+                },
+
+                // Price comparison CSS class
+                priceComparisonClass() {
+                    const percent = this.priceComparisonPercent;
+                    if (percent > 0) return 'higher';
+                    if (percent < 0) return 'lower';
+                    return 'baseline';
+                }
+            },
+
+            watch: {
+                'product.toolType': function() {
+                    this.updateMatchedStandardTool();
+                },
+                'product.materialType': function() {
+                    this.updateMatchedStandardTool();
+                },
+                'product.diameter': function() {
+                    this.updateMatchedStandardTool();
+                }
+            },
+
+            methods: {
+                // Update matched standard tool based on product info
+                updateMatchedStandardTool() {
+                    if (!this.product.toolType || !this.product.materialType || !this.product.diameter) {
+                        this.matchedStandardTool = null;
+                        this.matchedStandardTools = [];
+                        this.showAllStandardTools = false;
+                        return;
+                    }
+
+                    const d = this.product.diameter;
+
+                    // Find all matching standard tools (filter by toolType only for more results)
+                    const matched = this.standardTools.filter(tool =>
+                        tool.toolType === this.product.toolType &&
+                        (tool.materialType === this.product.materialType ||
+                         // Also include related material types for reference
+                         (this.product.materialType.includes('carbide') && tool.materialType.includes('carbide')) ||
+                         (this.product.materialType.includes('hss') && tool.materialType.includes('hss')))
+                    );
+
+                    // Sort by relevance: exact material match first, then by diameter range proximity
+                    matched.sort((a, b) => {
+                        // Exact material match priority
+                        const aExact = a.materialType === this.product.materialType ? 0 : 1;
+                        const bExact = b.materialType === this.product.materialType ? 0 : 1;
+                        if (aExact !== bExact) return aExact - bExact;
+
+                        // Then by whether diameter is in range
+                        const aInRange = d >= a.diameterMin && d <= a.diameterMax ? 0 : 1;
+                        const bInRange = d >= b.diameterMin && d <= b.diameterMax ? 0 : 1;
+                        return aInRange - bInRange;
+                    });
+
+                    this.matchedStandardTools = matched;
+                    this.matchedStandardTool = matched.length > 0 ? matched[0] : null;
+                    this.showAllStandardTools = false;
+                },
+
+                // Format currency
+                formatCurrency(value) {
+                    return '¥' + value.toFixed(2);
+                },
+
+                // Get material info
+                getMaterialInfo(type) {
+                    return this.materialTypes.find(m => m.value === type) || { pricePerKg: 100 };
+                },
+
+                // Get tool type label
+                getToolTypeLabel(type) {
+                    const found = this.toolTypes.find(t => t.value === type);
+                    return found ? found.label : type;
+                },
+
+                // Calculate material volume (simplified)
+                calculateVolume() {
+                    const d = this.product.diameter;
+                    const l = this.product.length;
+                    // Simplified cylinder volume calculation
+                    return Math.PI * Math.pow(d / 2, 2) * l / 1000; // Convert to cm3
+                },
+
+                // Calculate material weight (approximate)
+                calculateWeight() {
+                    const volume = this.calculateVolume();
+                    // Density varies by material, using average
+                    const density = this.product.materialType.includes('carbide') ? 14.5 :
+                                    this.product.materialType.includes('pcd') ? 3.5 :
+                                    this.product.materialType.includes('cbn') ? 3.5 : 8.0;
+                    return volume * density / 1000; // kg
+                },
+
+                // Match quotation scheme
+                matchScheme() {
+                    // Find applicable schemes
+                    const applicableSchemes = this.schemes.filter(s => s.applicable(this.product));
+
+                    // Select best scheme based on priority
+                    if (applicableSchemes.find(s => s.id === 'special')) {
+                        return this.schemes.find(s => s.id === 'special');
+                    }
+                    if (applicableSchemes.find(s => s.id === 'precision')) {
+                        return this.schemes.find(s => s.id === 'precision');
+                    }
+                    if (applicableSchemes.find(s => s.id === 'batch')) {
+                        return this.schemes.find(s => s.id === 'batch');
+                    }
+                    return this.schemes.find(s => s.id === 'standard');
+                },
+
+                // Calculate quotation
+                calculateQuotation() {
+                    if (!this.isFormValid) return;
+
+                    this.isCalculating = true;
+
+                    // Simulate calculation delay
+                    setTimeout(() => {
+                        const scheme = this.matchScheme();
+                        const materialInfo = this.getMaterialInfo(this.product.materialType);
+                        const weight = this.calculateWeight();
+
+                        // Material costs
+                        const materialBase = weight * materialInfo.pricePerKg;
+                        const materialWaste = materialBase * 0.15; // 15% waste
+                        const materialTotal = materialBase + materialWaste;
+
+                        // Processing costs
+                        const cncBase = this.calculateCNCCost();
+                        const stepTypeCost = this.calculateStepTypeCost(); // Cost based on step type
+                        const fluteCost = (parseInt(this.product.flutes) || 4) * 8; // 8 yuan per flute
+                        const toleranceCost = this.calculateToleranceCost();
+                        const processingTotal = cncBase + stepTypeCost + fluteCost + toleranceCost;
+
+                        // Surface treatment costs
+                        let coatingCost = 0;
+                        let passivationCost = 0;
+                        if (this.product.surfaceTreatment) {
+                            const coating = this.coatingPrices[this.product.surfaceTreatment];
+                            coatingCost = coating.base + coating.perMm * this.product.length;
+                        }
+                        if (this.product.passivation) {
+                            passivationCost = this.passivationPrices[this.product.passivation];
+                        }
+                        const surfaceTotal = coatingCost + passivationCost;
+
+                        // Other costs
+                        const packagingCost = this.packagingPrices[this.product.packaging] || 2;
+                        const inspectionCost = 5; // Fixed inspection cost
+                        const otherTotal = packagingCost + inspectionCost;
+
+                        // Subtotal
+                        const subtotal = materialTotal + processingTotal + surfaceTotal + otherTotal;
+
+                        // Profit
+                        const profit = subtotal * (scheme.profitRate / 100);
+
+                        // Discount (for batch orders)
+                        let discountRate = 0;
+                        if (this.product.quantity >= 500) discountRate = 10;
+                        else if (this.product.quantity >= 200) discountRate = 7;
+                        else if (this.product.quantity >= 100) discountRate = 5;
+                        else if (this.product.quantity >= 50) discountRate = 3;
+                        const discount = (subtotal + profit) * (discountRate / 100);
+
+                        // Urgent fee
+                        const urgentMultiplier = this.deliveryMultipliers[this.product.deliveryTime];
+                        const urgentFee = (subtotal + profit - discount) * urgentMultiplier;
+
+                        // Final price
+                        const unitPrice = subtotal + profit - discount + urgentFee;
+                        const totalPrice = unitPrice * this.product.quantity;
+
+                        // Generate quotation number
+                        const quotationNo = 'QT' + Date.now().toString().slice(-8);
+
+                        // Build quotation object
+                        this.quotation = {
+                            quotationNo,
+                            scheme: {
+                                name: scheme.name,
+                                description: scheme.description
+                            },
+                            costs: {
+                                material: {
+                                    total: materialTotal,
+                                    items: [
+                                        { name: '材料费用', value: materialBase, formula: `${weight.toFixed(3)}kg × ¥${materialInfo.pricePerKg}/kg` },
+                                        { name: '材料损耗', value: materialWaste, formula: '15%' }
+                                    ]
+                                },
+                                processing: {
+                                    total: processingTotal,
+                                    items: [
+                                        { name: '数控加工费', value: cncBase, formula: this.getCNCFormula() },
+                                        { name: '段差类型费', value: stepTypeCost, formula: this.getStepTypeName() },
+                                        { name: '刃槽加工费', value: fluteCost, formula: `${this.product.flutes || 4}刃 × ¥8` },
+                                        { name: '精度调整费', value: toleranceCost, formula: this.product.toleranceGrade }
+                                    ].filter(item => item.value > 0)
+                                },
+                                surface: {
+                                    total: surfaceTotal,
+                                    items: [
+                                        this.product.surfaceTreatment ? { name: this.getCoatingName(), value: coatingCost, formula: '' } : null,
+                                        this.product.passivation ? { name: this.getPassivationName(), value: passivationCost, formula: '' } : null
+                                    ].filter(Boolean)
+                                },
+                                other: {
+                                    total: otherTotal,
+                                    items: [
+                                        { name: '包装费', value: packagingCost, formula: this.getPackagingName() },
+                                        { name: '检测费', value: inspectionCost, formula: '' }
+                                    ]
+                                }
+                            },
+                            subtotal,
+                            profitRate: scheme.profitRate,
+                            profit,
+                            discountRate,
+                            discount,
+                            urgentFee,
+                            unitPrice,
+                            totalPrice
+                        };
+
+                        // Initialize editable rates
+                        this.editableProfitRate = scheme.profitRate;
+                        this.editableDiscountRate = discountRate;
+
+                        // Calculate delivery prediction
+                        this.calculateDeliveryPrediction();
+
+                        this.isCalculating = false;
+                    }, 800);
+                },
+
+                // Calculate CNC cost based on tool type and size
+                calculateCNCCost() {
+                    const d = this.product.diameter;
+                    const l = this.product.length;
+                    const baseRate = 0.5; // Base rate per mm²
+
+                    // Tool type multiplier
+                    const typeMultiplier = {
+                        'endmill': 1.0,
+                        'ballnose': 1.3,
+                        'chamfer': 0.8,
+                        'drill': 0.9,
+                        'reamer': 1.2,
+                        'tap': 1.5,
+                        'slotmill': 1.1,
+                        'facemill': 1.4
+                    }[this.product.toolType] || 1.0;
+
+                    return Math.PI * d * l * baseRate * typeMultiplier;
+                },
+
+                // Get CNC formula string
+                getCNCFormula() {
+                    return `π × ${this.product.diameter}mm × ${this.product.length}mm × 工艺系数`;
+                },
+
+                // Calculate tolerance cost
+                calculateToleranceCost() {
+                    const costs = {
+                        'IT5': 50,
+                        'IT6': 30,
+                        'IT7': 10,
+                        'IT8': 0
+                    };
+                    return costs[this.product.toleranceGrade] || 0;
+                },
+
+                // Calculate step type cost
+                calculateStepTypeCost() {
+                    const costs = {
+                        'default': 0,
+                        'bigHead': 25,
+                        'topGrinding': 40
+                    };
+                    return costs[this.product.stepType] || 0;
+                },
+
+                // Get step type name
+                getStepTypeName() {
+                    const names = {
+                        'default': '默认',
+                        'bigHead': '大头',
+                        'topGrinding': '顶磨'
+                    };
+                    return names[this.product.stepType] || '默认';
+                },
+
+                // Recalculate final price (called when profit rate or discount rate changes)
+                recalculateFinalPrice() {
+                    // The computed properties automatically recalculate
+                    // This method is called for any additional logic if needed
+                },
+
+                // Calculate delivery prediction
+                calculateDeliveryPrediction() {
+                    const breakdown = [];
+                    let totalDays = 0;
+
+                    // Material preparation time
+                    let materialDays = 1; // Default 1 day if in stock
+                    breakdown.push({ name: '材料准备', days: materialDays });
+                    totalDays += materialDays;
+
+                    // Base processing time based on tool type and complexity
+                    let processingDays = 3;
+                    const typeMultiplier = {
+                        'endmill': 1.0,
+                        'ballnose': 1.3,
+                        'chamfer': 0.8,
+                        'drill': 0.9,
+                        'reamer': 1.2,
+                        'tap': 1.5,
+                        'slotmill': 1.1,
+                        'facemill': 1.4
+                    }[this.product.toolType] || 1.0;
+
+                    // Adjust for precision grade
+                    const toleranceMultiplier = {
+                        'IT5': 1.5,
+                        'IT6': 1.3,
+                        'IT7': 1.0,
+                        'IT8': 0.8
+                    }[this.product.toleranceGrade] || 1.0;
+
+                    processingDays = Math.ceil(processingDays * typeMultiplier * toleranceMultiplier);
+                    breakdown.push({ name: '粗精加工', days: processingDays });
+                    totalDays += processingDays;
+
+                    // Surface treatment time
+                    if (this.product.surfaceTreatment) {
+                        const coatingDays = 2;
+                        breakdown.push({ name: '涂层处理', days: coatingDays });
+                        totalDays += coatingDays;
+                    }
+
+                    // Passivation time
+                    if (this.product.passivation) {
+                        const passivationDays = 1;
+                        breakdown.push({ name: '钝化处理', days: passivationDays });
+                        totalDays += passivationDays;
+                    }
+
+                    // QC and packaging time
+                    let qcDays = 1;
+                    breakdown.push({ name: '检测包装', days: qcDays });
+                    totalDays += qcDays;
+
+                    // Adjust for delivery urgency
+                    if (this.product.deliveryTime === 'fast') {
+                        totalDays = Math.ceil(totalDays * 0.7);
+                    } else if (this.product.deliveryTime === 'urgent') {
+                        totalDays = Math.ceil(totalDays * 0.5);
+                    }
+
+                    // Calculate dates
+                    const startDate = this.getNextWorkingDay(new Date());
+                    const endDate = this.addWorkingDays(startDate, totalDays);
+
+                    this.deliveryPrediction = {
+                        startDate: this.formatDate(startDate),
+                        endDate: this.formatDate(endDate),
+                        totalDays: totalDays,
+                        breakdown: breakdown
+                    };
+                },
+
+                // Get next working day
+                getNextWorkingDay(date) {
+                    const result = new Date(date);
+                    result.setDate(result.getDate() + 1);
+                    // Skip weekends
+                    while (result.getDay() === 0 || result.getDay() === 6) {
+                        result.setDate(result.getDate() + 1);
+                    }
+                    return result;
+                },
+
+                // Add working days to a date
+                addWorkingDays(startDate, days) {
+                    const result = new Date(startDate);
+                    let addedDays = 0;
+                    while (addedDays < days) {
+                        result.setDate(result.getDate() + 1);
+                        // Skip weekends
+                        if (result.getDay() !== 0 && result.getDay() !== 6) {
+                            addedDays++;
+                        }
+                    }
+                    return result;
+                },
+
+                // Format date
+                formatDate(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
+
+                // Copy to clipboard
+                copyToClipboard(text) {
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(text).then(() => {
+                            alert('已复制到剪贴板');
+                        });
+                    } else {
+                        // Fallback for older browsers
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        alert('已复制到剪贴板');
+                    }
+                },
+
+                // Get coating name
+                getCoatingName() {
+                    const names = {
+                        'TiN': 'TiN镀层',
+                        'TiAlN': 'TiAlN镀层',
+                        'AlCrN': 'AlCrN镀层',
+                        'DLC': 'DLC涂层'
+                    };
+                    return names[this.product.surfaceTreatment] || this.product.surfaceTreatment;
+                },
+
+                // Get passivation name
+                getPassivationName() {
+                    const names = {
+                        'standard': '标准钝化',
+                        'precision': '精密钝化',
+                        'mirror': '镜面钝化'
+                    };
+                    return names[this.product.passivation] || this.product.passivation;
+                },
+
+                // Get packaging name
+                getPackagingName() {
+                    const names = {
+                        'standard': '标准包装',
+                        'individual': '独立包装',
+                        'gift': '礼盒包装',
+                        'export': '出口包装'
+                    };
+                    return names[this.product.packaging] || this.product.packaging;
+                },
+
+                // Save quotation
+                saveQuotation() {
+                    if (!this.quotation) return;
+
+                    const historyItem = {
+                        id: Date.now(),
+                        productName: this.product.name,
+                        productModel: this.product.model,
+                        toolType: this.getToolTypeLabel(this.product.toolType),
+                        materialType: this.getMaterialInfo(this.product.materialType).label,
+                        quantity: this.product.quantity,
+                        totalPrice: this.quotation.totalPrice,
+                        date: new Date().toLocaleString('zh-CN'),
+                        product: { ...this.product },
+                        quotation: { ...this.quotation }
+                    };
+
+                    this.history.unshift(historyItem);
+
+                    // Keep only last 10 items
+                    if (this.history.length > 10) {
+                        this.history = this.history.slice(0, 10);
+                    }
+
+                    // Save to localStorage
+                    localStorage.setItem('quotation_history', JSON.stringify(this.history));
+
+                    alert('报价已保存！报价单号：' + this.quotation.quotationNo);
+                },
+
+                // Export quotation
+                exportQuotation() {
+                    if (!this.quotation) return;
+
+                    // Build quotation text
+                    let text = '刀具加工报价单\n';
+                    text += '========================\n\n';
+                    text += `报价单号: ${this.quotation.quotationNo}\n`;
+                    text += `报价方案: ${this.quotation.scheme.name}\n\n`;
+                    text += '产品信息:\n';
+                    text += `- 产品名称: ${this.product.name}\n`;
+                    text += `- 产品型号: ${this.product.model}\n`;
+                    text += `- 刀具类型: ${this.getToolTypeLabel(this.product.toolType)}\n`;
+                    text += `- 材料类型: ${this.getMaterialInfo(this.product.materialType).label}\n`;
+                    text += `- 规格: Φ${this.product.diameter} × ${this.product.length}mm\n`;
+                    text += `- 数量: ${this.product.quantity}件\n\n`;
+                    text += '费用明细:\n';
+                    text += `- 材料成本: ${this.formatCurrency(this.quotation.costs.material.total)}\n`;
+                    text += `- 加工成本: ${this.formatCurrency(this.quotation.costs.processing.total)}\n`;
+                    text += `- 表面处理: ${this.formatCurrency(this.quotation.costs.surface.total)}\n`;
+                    text += `- 其他费用: ${this.formatCurrency(this.quotation.costs.other.total)}\n`;
+                    text += `- 利润(${this.quotation.profitRate}%): ${this.formatCurrency(this.quotation.profit)}\n`;
+                    if (this.quotation.discount > 0) {
+                        text += `- 折扣(-${this.quotation.discountRate}%): -${this.formatCurrency(this.quotation.discount)}\n`;
+                    }
+                    if (this.quotation.urgentFee > 0) {
+                        text += `- 加急费: ${this.formatCurrency(this.quotation.urgentFee)}\n`;
+                    }
+                    text += '\n========================\n';
+                    text += `单价: ${this.formatCurrency(this.quotation.unitPrice)}\n`;
+                    text += `总价: ${this.formatCurrency(this.quotation.totalPrice)}\n`;
+                    text += '\n报价日期: ' + new Date().toLocaleString('zh-CN');
+
+                    // Create download
+                    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `报价单_${this.quotation.quotationNo}.txt`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+
+                    alert('报价单已导出！');
+                },
+
+                // Reset form
+                resetForm() {
+                    this.product = {
+                        name: '',
+                        model: '',
+                        toolType: '',
+                        materialType: '',
+                        diameter: null,
+                        length: null,
+                        flutes: '',
+                        helixAngle: 35,
+                        cuttingDiameter: null,
+                        cuttingLength: null,
+                        rAngle: null,
+                        toleranceGrade: 'IT7',
+                        stepType: 'default',
+                        surfaceTreatment: '',
+                        passivation: '',
+                        quantity: 1,
+                        deliveryTime: 'standard',
+                        packaging: 'standard'
+                    };
+                    this.quotation = null;
+                    this.matchedStandardTools = [];
+                    this.showAllStandardTools = false;
+                    this.editableProfitRate = 25;
+                    this.editableDiscountRate = 0;
+                },
+
+                // Load history item
+                loadHistory(item) {
+                    this.product = { ...item.product };
+                    this.quotation = { ...item.quotation };
+                }
+            },
+
+            mounted() {
+                // Load history from localStorage
+                const savedHistory = localStorage.getItem('quotation_history');
+                if (savedHistory) {
+                    try {
+                        this.history = JSON.parse(savedHistory);
+                    } catch (e) {
+                        console.error('Failed to load history:', e);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
